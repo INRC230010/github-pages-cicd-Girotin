@@ -2,11 +2,11 @@
 name: Deploy to GitHub Pages
 
 # Gatilho: Quando o workflow deve rodar?
-# Aqui, ele vai rodar toda vez que você der 'push' na branch 'main'
+# Aqui, ele vai rodar toda vez que você der 'push' na branch 'master'
 on:
   push:
     branches:
-      - main
+      - master
 
 # Permissões necessárias para o workflow poder 'escrever' no GitHub Pages
 permissions:
