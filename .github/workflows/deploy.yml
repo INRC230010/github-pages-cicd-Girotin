@@ -1,0 +1,44 @@
+# Nome do seu Workflow
+name: Deploy to GitHub Pages
+
+# Gatilho: Quando o workflow deve rodar?
+# Aqui, ele vai rodar toda vez que você der 'push' na branch 'main'
+on:
+  push:
+    branches:
+      - main
+
+# Permissões necessárias para o workflow poder 'escrever' no GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Tarefas (jobs) que o workflow vai executar
+jobs:
+  # Tarefa de 'deploy' (publicação)
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest # Rodar numa máquina virtual Ubuntu
+    steps:
+      # 1. Baixa o seu código (o index.html) para a máquina virtual
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Configura o GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # 3. Faz o 'upload' do seu site (só o que está na raiz)
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Onde está seu site? Na raiz (pasta './')
+          path: '.' 
+
+      # 4. Publica o site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
