@@ -1,44 +1,53 @@
-# Nome do seu Workflow
-name: Deploy to GitHub Pages
+name: Deploy Hugo site to Pages
 
-# Gatilho: Quando o workflow deve rodar?
-# Aqui, ele vai rodar toda vez que você der 'push' na branch 'master'
 on:
+  # Roda quando um push é feito na branch 'main'
   push:
     branches:
-      - master
+      - main 
 
-# Permissões necessárias para o workflow poder 'escrever' no GitHub Pages
+# Permissões necessárias para o workflow
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Tarefas (jobs) que o workflow vai executar
 jobs:
-  # Tarefa de 'deploy' (publicação)
+  # Tarefa de "build" (construção)
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true  # <-- ISSO É ESSENCIAL: Baixa os submódulos (seu tema)
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: 'latest' # Instala o Hugo
+          extended: true
+
+      - name: Build
+        run: hugo --minify # Roda o comando para gerar o site na pasta 'public'
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public # <-- IMPORTANTE: Envia a pasta 'public', não a raiz
+
+  # Tarefa de "deploy" (publicação)
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest # Rodar numa máquina virtual Ubuntu
+    runs-on: ubuntu-latest
+    needs: build # <-- Só roda DEPOIS que a tarefa 'build' terminar
     steps:
-      # 1. Baixa o seu código (o index.html) para a máquina virtual
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # 2. Configura o GitHub Pages
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      # 3. Faz o 'upload' do seu site (só o que está na raiz)
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Onde está seu site? Na raiz (pasta './')
-          path: '.' 
-
-      # 4. Publica o site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
