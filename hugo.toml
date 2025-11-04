@@ -1,4 +1,4 @@
-baseURL = "http://www.example.com"
+baseURL = "https://INRC230010.github.io/github-pages-cicd-Girotin/"
 title = "johndoe"
 theme = "hugo-coder"
 languageCode = "en"
